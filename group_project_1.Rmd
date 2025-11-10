@@ -27,6 +27,8 @@ alksdjalksdlkasdlksajd
 
 hello world
 
+hello stupid1
+
 ```{r pressure, echo=FALSE}
 plot(pressure)
 ```
