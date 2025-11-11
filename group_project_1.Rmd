@@ -50,17 +50,27 @@ x
 ```
 the data is collected through the public safety NIBRS website and it is imported through the upload file to server button which is stored in cloud. after that, I use read csv to find the directory of the file and import it.
 
+the data is collected through the public safety NIBRS website and it is imported through the upload file to server button which is stored in cloud. after that, I use read csv to find the directory of the file and import it.
 
 What are key variables in the data set, what do they measure, and how are they related to your key questions?
-
+Key variables include the dates and times the crimes occurred, the area (including long and lat), as well as the crime types. 
 
 What does a single row of the data set represent in real terms?
+A single row represents an official crime reported by the LAPD 
+
 If the data may be thought of as a sample from some larger population, what is that larger population?
+The larger population could include unreported crimes in LA, or even all crimes across the world in general.
+
 Note: if you get the data from a data repository such as Kaggle, you will need to dig into supplementary information to answer these questions.
 It is insufficient to simply report a link to a Kaggle repository.
+
 Include a description of a graph which will show how the data informs the primary question of interest.
+One possible graph could be a time series plot showing monthly crime counts for major offense categories from 2020–2025.
+
 Describe what variables you will include and what type of graph you will create.
+DATE.OCC and TIME.OCC, as well as Crm.Cd.Desc.
+
 Include a description of a possible model for the data and associated methods of inference or prediction.
-We understand that you may not have a good grasp of these methods yet.
-We understand the choice of methods may change between the proposal and the final project.
- 
+One possible model would predict the number of crimes per month as a function of the date. This would let us predict the number of crimes in the future.
+We could also create a model to see if there’s correlation between the weapons used and the victim’s features (age, sex, descent).
+
