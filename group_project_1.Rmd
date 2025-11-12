@@ -1,47 +1,75 @@
 ---
-title: "group_project_1"
-author: "Cody.ke"
-date: "`r Sys.Date()`"
+title: "group project"
+author: "Cody, Anna"
+date: "2025-11-08"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
-## R Markdown
+Project Proposal
+The project proposal should be a knitted R Markdown document which contains the following elements.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+The names of the students in the group.
+Cody, Anna, Aadrsh Sankar, Nick Yeung
+A brief description of how the group will communicate and work together.
+we use posit cloud as a shared document and each person will be doing a part of it. Anna will be working on the which topic The question or questions of interest that motivate the planned study. part and Cody will be working on finding the sources of the data.
+And Cody will be working on finding the soures of the dataset and the discriptions of the dataset. Also we will contact each other on instagram trough a group chat
+When during the week can the group meet?
+On monday 2:30 after class
+Consider needs of all group members.
+What platforms will the group use to communicate and share documents.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+we will use posit.cloud to share documents and use instagram groupchat to communicate. 
 
-```{r cars}
-summary(cars)
+The question or questions of interest that motivate the planned study.
+
+1.How have patterns of crime in Los Angeles changed from 2020 to 2025 across different geographic areas, times, and types of offenses?
+2. How has the transition to the new NIBRS-based reporting system in 2024 affected the accuracy, frequency, or completeness of reported crime data in Los Angeles?
+
+
+The topic selected must be unanimous among group members.
+```{r}
+#Each question should be in the form of a research question which may be supported or refuted by the data analysis and typically proposes or predicts a relationship between some variables in the study.
+#Note that your project should aim to answer a limited number of questions (preferably one) using data from one or more source.
+#Do not try to answer too many questions. Better projects will have a focused set of one or two questions.
+#The source(s) of data.
+#A description of the data. Include in this description answers to these questions:
 ```
+Who collected the data?
 
-## Including Plots
+Cody
 
-You can also embed plots, for example:
-
-alksdjalksdlkasdlksajd
-
-hello world
-
-hello stupid1
-
-git add .
-git commit -m "aslkjdjkals"
-git push
-
-git pull
-- if pull causes merge conflict
-- git config pull.rebase false
-- git pull
-- resolve merge conflicts if any
-- again add . commit -m aslkdas push
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+How were the data collected?
+```{r}
+read.csv("../project/Crime_Data_from_2020_to_Present.csv")
 ```
+the data is collected through the public safety NIBRS website and it is imported through the upload file to server button which is stored in cloud. after that, I use read csv to find the directory of the file and import it.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+What are key variables in the data set, what do they measure, and how are they related to your key questions?
+Key variables include the dates and times the crimes occurred, the area (including long and lat), as well as the crime types. 
+
+What does a single row of the data set represent in real terms?
+A single row represents an official crime reported by the LAPD 
+
+If the data may be thought of as a sample from some larger population, what is that larger population?
+The larger population could include unreported crimes in LA, or even all crimes across the world in general.
+
+Note: if you get the data from a data repository such as Kaggle, you will need to dig into supplementary information to answer these questions.
+It is insufficient to simply report a link to a Kaggle repository.
+
+Include a description of a graph which will show how the data informs the primary question of interest.
+One possible graph could be a time series plot showing monthly crime counts for major offense categories from 2020–2025.
+
+Describe what variables you will include and what type of graph you will create.
+DATE.OCC and TIME.OCC, as well as Crm.Cd.Desc.
+
+Include a description of a possible model for the data and associated methods of inference or prediction.
+One possible model would predict the number of crimes per month as a function of the date. This would let us predict the number of crimes in the future.
+We could also create a model to see if there’s correlation between the weapons used and the victim’s features (age, sex, descent).
+ 
+We understand that you may not have a good grasp of these methods yet.
+We understand the choice of methods may change between the proposal and the final project.
