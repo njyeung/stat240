@@ -45,7 +45,9 @@ Cody
 
 How were the data collected?
 ```{r}
-read.csv("../project/Crime_Data_from_2020_to_Present.csv")
+data = read.csv("Crime_Data_from_2020_to_Present.csv")
+
+head(data)
 ```
 the data is collected through the public safety NIBRS website and it is imported through the upload file to server button which is stored in cloud. after that, I use read csv to find the directory of the file and import it.
 
