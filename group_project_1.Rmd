@@ -1,6 +1,6 @@
 ---
 title: "group project"
-author: "Cody, Anna,Aadarsh,Nick"
+author: "Cody, Anna"
 date: "2025-11-08"
 output: html_document
 ---
@@ -14,43 +14,42 @@ Project Proposal
 The project proposal should be a knitted R Markdown document which contains the following elements.
 
 The names of the students in the group.
-Cody, Anna, Aadrsh, Sankar, Nick 
-
+Cody, Anna, Aadrsh Sankar, Nick Yeung
 A brief description of how the group will communicate and work together.
-
-we use github to make a github shared space, and we use terminal, git pull and git push to recieve and send the latest of our work. Anna will be working on the which topic The question or questions of interest that motivate the planned study. part and Cody will be working on finding the sources of the data. Aadrsh will be making the plot and Nick is working on analyzing the variables. Also we will contact each other on Instagram trough a group chat.
-
+we use posit cloud as a shared document and each person will be doing a part of it. Anna will be working on the which topic The question or questions of interest that motivate the planned study. part and Cody will be working on finding the sources of the data.
+And Cody will be working on finding the soures of the dataset and the discriptions of the dataset. Also we will contact each other on instagram trough a group chat
 When during the week can the group meet?
-On Monday 2:30 after class
+On monday 2:30 after class
 Consider needs of all group members.
-
 What platforms will the group use to communicate and share documents.
 
-we will use github to share documents and use Instagram group chat to communicate. 
+we will use posit.cloud to share documents and use instagram groupchat to communicate. 
 
 The question or questions of interest that motivate the planned study.
 
 1.How have patterns of crime in Los Angeles changed from 2020 to 2025 across different geographic areas, times, and types of offenses?
 2. How has the transition to the new NIBRS-based reporting system in 2024 affected the accuracy, frequency, or completeness of reported crime data in Los Angeles?
 
+
+The topic selected must be unanimous among group members.
+```{r}
+#Each question should be in the form of a research question which may be supported or refuted by the data analysis and typically proposes or predicts a relationship between some variables in the study.
+#Note that your project should aim to answer a limited number of questions (preferably one) using data from one or more source.
+#Do not try to answer too many questions. Better projects will have a focused set of one or two questions.
+#The source(s) of data.
+#A description of the data. Include in this description answers to these questions:
+```
 Who collected the data?
 
 Cody
 
-
 How were the data collected?
 ```{r}
-x<-read.csv("../stat240/Crime_Data_from_2020_to_Present.csv")
-x
+data = read.csv("Crime_Data_from_2020_to_Present.csv")
 
-
-
-
-
+head(data)
 ```
-the data is collected through the public safety NIBRS website and it is downloaded into my desktop stat240 file I both put this file and the group project Rmd file in this space. so i can use read.csv to import my dataset.
-
-
+the data is collected through the public safety NIBRS website and it is imported through the upload file to server button which is stored in cloud. after that, I use read csv to find the directory of the file and import it.
 
 What are key variables in the data set, what do they measure, and how are they related to your key questions?
 Key variables include the dates and times the crimes occurred, the area (including long and lat), as well as the crime types. 
@@ -73,25 +72,6 @@ DATE.OCC and TIME.OCC, as well as Crm.Cd.Desc.
 Include a description of a possible model for the data and associated methods of inference or prediction.
 One possible model would predict the number of crimes per month as a function of the date. This would let us predict the number of crimes in the future.
 We could also create a model to see if there’s correlation between the weapons used and the victim’s features (age, sex, descent).
-
-```{r monthly_trend, echo=TRUE}
-library(tidyverse)
-
-x <- read.csv("Crime_Data_from_2020_to_Present.csv")
-x$DATE.OCC <- as.Date(x$DATE.OCC, format="%m/%d/%Y")
-
-monthly <- x %>%
-  mutate(month = as.Date(format(DATE.OCC, "%Y-%m-01"))) %>%
-  count(month)
-
-ggplot(monthly, aes(x = month, y = n)) +
-  geom_line(color = "steelblue") +
-  labs(
-    title = "Monthly Crime Trends in Los Angeles (2020–2025)",
-    x = "Month",
-    y = "Total Reported Crimes"
-  ) +
-  theme_minimal()
-```
-
-This line graph indicates the amount of overall crimes reported in Los Angeles, over time, between 2020 and 2025, with every point representing the total amount of crimes reported in one month, The trend line indicates whether overall crime has increased, decreased or remains stable within those years. This visual assists in answering our main research question relating to how the crimes have fluctuated over time. It also sets the stage for our secondary question regarding the impact of the 2024 NIBRS reporting transition - Should there be an increased or decreased spike after early 2024, this may indicate a relation to the nuance of the new reporting system.
+ 
+We understand that you may not have a good grasp of these methods yet.
+We understand the choice of methods may change between the proposal and the final project.
