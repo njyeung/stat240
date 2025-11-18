@@ -51,12 +51,12 @@ crime_data
 1. Crime Over Time — Has Crime Increased or Decreased?
 Question
 ```{r}
-crime_data<-crime_data%>%mutate(date_crime=substring(Date.Rptd,0,10))
+crime_data<-crime_data%>%mutate(date_crime=substring(Date.Rptd,1,10))
 crime_data
 
 ```
 ```{r}
-crime_date<-as.Date(crime_data$date_crime,format = "%m/%d/%y")
+crime_date<-as.Date(crime_data$date_crime,format = "%m/%d/%Y")
 crime_date
 ```
 ```{r}
@@ -64,11 +64,12 @@ crime_data<-crime_data%>%mutate(date=crime_date)%>%arrange(date)%>%mutate(year=y
 crime_data
 ```
 ```{r}
-crime_data%>%group_by(date)%>%summarise(n=n())%>%ggplot(aes(x=date,y=n),color="blue")+geom_line()+geom_smooth()+labs(x="date",y="how many crimes happened this day",title = "crime each day change over time")
+crime_data%>%group_by(date)%>%summarise(n=n())%>%ggplot(aes(x=date,y=n),color="blue")+geom_line()+geom_smooth()+geom_smooth(method = "lm",se=FALSE,color="red")+labs(x="date",y="how many crimes happened this day",title = "crime each day change over time")
 ```
 
 How has crime frequency changed over the years/months?
 Why meaningful
+
 Time trends are central to crime analysis and allow for a strong thesis.
 Plots
 Time series line plot of number of crimes per month
@@ -77,15 +78,20 @@ Methods
 Compute counts per month using lubridate::floor_date.
 Confidence intervals for differences in means between years.
 Potential thesis
-Crime incidents have steadily decreased (or increased) in Los Angeles over the past decade, suggesting changes in policing, population movement, and socioeconomic conditions.
+Crime incidents have increased form 2000 tio 2022,however, there is a steadily decrease of crime incidence starting from 2024.and the overall change of crime from 2020 to 2024 is decreasing.
 
 2. Crime by Location (Area) — Which Neighborhoods Are Most Affected?
 Question
 Which areas report the highest crime rates?
+
 Why meaningful
 The dataset includes counts by LAPD area; these comparisons are statistically rich.
 Plots
 Bar chart: number of incidents by AREA.NAME
+```{r}
+crime_data%>%group_by(AREA.NAME)%>%count()%>%arrange(desc(n))%>%ggplot(aes(x=AREA.NAME,y=n))+geom_bar(stat = "identity")
+```
+
 Choropleth map if shapefiles are available (optional)
 Boxplot of crime counts per district over months
 Methods
