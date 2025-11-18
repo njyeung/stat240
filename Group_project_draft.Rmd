@@ -75,7 +75,7 @@ Plots
 Time series line plot of number of crimes per month
 Seasonality plot (crimes by month of year)
 Methods
-Compute counts per month using lubridate::floor_date.
+Compute counts by using group_by() and count(),also use arrange()to make the data into sequence
 Confidence intervals for differences in means between years.
 Potential thesis
 Crime incidents have increased form 2000 tio 2022,however, there is a steadily decrease of crime incidence starting from 2024.and the overall change of crime from 2020 to 2024 is decreasing.
@@ -104,8 +104,16 @@ Question
 Do certain crimes disproportionately affect particular demographic groups?
 Plots
 Histogram of victim ages
+
+
 Boxplots of victim age by crime type
+
 Bar chart of Vict.Sex × crime type
+```{r}
+crime_filtered<-crime_data%>%count(Vict.Sex)%>%filter(Vict.Sex=="M"|Vict.Sex=="F")
+crime_filtered
+crime_filtered%>%ggplot(aes(x=Vict.Sex,y=n,fill = Vict.Sex),)+geom_bar(stat = "identity")+labs(x="sex",y="the number of crimes by each gender",title = "number of crimes convicted by male and femals")
+```
 Methods
 Compare mean victim age across crime categories
 Compare proportions by sex (e.g., “What percent of assault victims are male vs female?”)
