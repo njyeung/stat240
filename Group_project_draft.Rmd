@@ -1,0 +1,173 @@
+---
+title: "Group_project_draft"
+author: "Cody.ke"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## R Markdown
+The R Markdown file should include a section in which you read in the raw data files and transform the data for analysis. Exclude this R code from the knitted HTML report by using include=FALSE in the corresponding R chunks.
+Your data analysis should include data exploration including graphical and numerical summaries which do not appear in the final report. You may exclude such analysis by using include=FALSE in the corresponding R chunks.
+The methods of analysis should primarily be methods discussed from the course.
+Data
+Upload one or more data files that can be read in with code in the R Markdown file to replicate your analysis.
+R Markdown
+The instructors should be able to knit your document if the file and all of the data files are in the same directory.
+HTML Full Report
+The knitted HTML document should contain the following sections. There is no limit on the overall length of this document, but the aim is to introduce your question(s) and describe your results concisely and persuasively.
+
+The knitted document should not include any of the code used for the analysis or graphics. (Set echo=FALSE to suppress the code or include=FALSE to suppress both code and output in the R chunks as appropriate.)
+
+Your report should include the following sections.
+
+Introduction
+The opening sentence or sentences should draw the reader into your report by providing high-level motivation for the analysis. 
+Describe the question or questions of interest and the motivation for the analysis.
+Conclude the introduction with a thesis statement.
+A thesis statement comprises one or two declarative sentences that summarize the main point of the report and clearly makes an assertion and communicates to the reader the position the authors have taken on the topic.1Links to an external site.
+Background
+Describe the data set, how it was collected, what the variables mean.
+Cite the source of your data.
+Describe any background information needed to better comprehend the question or questions you are posing and how the data relate to the question.
+Describe any unusual factors which may affect interpretation of results.
+Describe what you intend to do in the rest of the report.
+Analysis
+Include numerical and graphical summaries of the data. Be sure to introduce and describe your numerical and graphical summaries.  Do not display a series of summaries without text explaining them.
+Make sure to include at least one graphical display of the data that best supports your main conclusions for your primary question, and explain how it supports your conclusions.
+For each inference you make, briefly describe the method you use and what the results are.
+Provide evidence to support each of your claims.
+This section should not include substantial interpretation of results. Leave that for the discussion.
+```{r}
+crime_data<-read.csv("Crime_Data_from_2020_to_Present.csv")
+crime_data
+
+```
+
+1. Crime Over Time — Has Crime Increased or Decreased?
+Question
+```{r}
+crime_data<-crime_data%>%mutate(date_crime=substring(Date.Rptd,1,10))
+crime_data
+
+```
+```{r}
+crime_date<-as.Date(crime_data$date_crime,format = "%m/%d/%Y")
+crime_date
+```
+```{r}
+crime_data<-crime_data%>%mutate(date=crime_date)%>%arrange(date)%>%mutate(year=year(date),month=month(date))
+crime_data
+```
+```{r}
+crime_data%>%group_by(date)%>%summarise(n=n())%>%ggplot(aes(x=date,y=n),color="blue")+geom_line()+geom_smooth()+geom_smooth(method = "lm",se=FALSE,color="red")+labs(x="date",y="how many crimes happened this day",title = "crime each day change over time")
+```
+
+How has crime frequency changed over the years/months?
+Why meaningful
+
+Time trends are central to crime analysis and allow for a strong thesis.
+Plots
+Time series line plot of number of crimes per month
+Seasonality plot (crimes by month of year)
+Methods
+Compute counts by using group_by() and count(),also use arrange()to make the data into sequence
+Confidence intervals for differences in means between years.
+Potential thesis
+Crime incidents have increased form 2000 tio 2022,however, there is a steadily decrease of crime incidence starting from 2024.and the overall change of crime from 2020 to 2024 is decreasing.
+
+2. Crime by Location (Area) — Which Neighborhoods Are Most Affected?
+Question
+Which areas report the highest crime rates?
+
+Why meaningful
+The dataset includes counts by LAPD area; these comparisons are statistically rich.
+Plots
+Bar chart: number of incidents by AREA.NAME
+```{r}
+crime_data%>%group_by(AREA.NAME)%>%count()%>%arrange(desc(n))%>%ggplot(aes(x=AREA.NAME,y=n))+geom_bar(stat = "identity")
+```
+
+Choropleth map if shapefiles are available (optional)
+Boxplot of crime counts per district over months
+Methods
+Compare top 5 vs bottom 5 areas
+Use proportions + confidence intervals
+Potential thesis
+Crime in Los Angeles is unevenly distributed across police districts, with a small number of areas accounting for the majority of reported incidents.
+5. Victim Demographics — Does Age or Sex Correlate With Crime Type?
+Question
+Do certain crimes disproportionately affect particular demographic groups?
+Plots
+Histogram of victim ages
+
+
+Boxplots of victim age by crime type
+
+Bar chart of Vict.Sex × crime type
+```{r}
+crime_filtered<-crime_data%>%count(Vict.Sex)%>%filter(Vict.Sex=="M"|Vict.Sex=="F")
+crime_filtered
+crime_filtered%>%ggplot(aes(x=Vict.Sex,y=n,fill = Vict.Sex),)+geom_bar(stat = "identity")+labs(x="sex",y="the number of crimes by each gender",title = "number of crimes convicted by male and femals")
+```
+Methods
+Compare mean victim age across crime categories
+Compare proportions by sex (e.g., “What percent of assault victims are male vs female?”)
+Potential thesis
+Violent crimes disproportionately affect younger victims, while identity theft affects older demographics.
+
+
+
+
+Option 1 — Compare Two Population Proportions (Very Strong & Easy)
+Inference Question
+Is the proportion of identity theft incidents higher in 2021 compared to 2020?
+Why this is great
+Crime dataset includes Date.OCC → you can segment by year
+Crime type “THEFT OF IDENTITY” is frequent
+You can make a clear two-proportion z-test
+Easy plots: time series + proportion bar chart
+Hypotheses
+H₀: p₍2021₎ = p₍2020₎
+H₁: p₍2021₎ ≠ p₍2020₎
+Thesis (example)
+The proportion of identity theft incidents significantly changed between 2020 and 2021, suggesting a meaningful shift in crime patterns during this period.
+
+BRAINSTORM
+
+PLOTS
+Crimes over time plot
+bin by month, count rows per month. Plot
+
+INFERENCE
+single population proportion: M/F
+Is the crimes against male and female equal?
+p = 0.5, number of crimes against males = number of crimes against females
+There is probably more crimes against females. Do a two sided test anyways.
+
+
+two proportion test: (M/F) in 2021 vs (M/F) in 2022
+compare the crimes against male and female in 2021 and 2022 
+
+Comparing two means 
+Comparing mean victim age over two years
+
+
+
+
+
+Discussion
+Provide broader interpretations of your analysis and describe how to interpret your results with respect to your question of interest.
+Discuss any potential short-comings of the analysis.
+Discuss potential future directions for additional work
+New questions
+Different methods to address the same questions
+New data you might collect to refine your understanding
+Summarize your primary conclusions and the primary evidence that supports these conclusions.
+References
+In the R Markdown file, you may automatically cite other resources by using a caret followed by the reference between square brackets: ^[your reference text] which will place a marker at this location and a footnote at the end of the document.
+
