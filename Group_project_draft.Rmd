@@ -11,6 +11,7 @@ library(tidyverse)
 ```
 
 ## R Markdown
+```
 The R Markdown file should include a section in which you read in the raw data files and transform the data for analysis. Exclude this R code from the knitted HTML report by using include=FALSE in the corresponding R chunks.
 Your data analysis should include data exploration including graphical and numerical summaries which do not appear in the final report. You may exclude such analysis by using include=FALSE in the corresponding R chunks.
 The methods of analysis should primarily be methods discussed from the course.
@@ -42,54 +43,104 @@ Make sure to include at least one graphical display of the data that best suppor
 For each inference you make, briefly describe the method you use and what the results are.
 Provide evidence to support each of your claims.
 This section should not include substantial interpretation of results. Leave that for the discussion.
-```{r}
-crime_data<-read.csv("Crime_Data_from_2020_to_Present.csv")
-crime_data
-
 ```
 
-1. Crime Over Time — Has Crime Increased or Decreased?
-Question
-```{r}
-crime_data<-crime_data%>%mutate(date_crime=substring(Date.Rptd,1,10))
-crime_data
+## 0. Data Preprocessing Step
+LAPD switched to a new records management system in March 7th 2024 (the number of crimes in this dataset drops significantly after that), so we're going to ignore 2024 in total.
 
-```
 ```{r}
-crime_date<-as.Date(crime_data$date_crime,format = "%m/%d/%Y")
-crime_date
-```
-```{r}
-crime_data<-crime_data%>%mutate(date=crime_date)%>%arrange(date)%>%mutate(year=year(date),month=month(date))
-crime_data
-```
-```{r}
-crime_data%>%group_by(date)%>%summarise(n=n())%>%ggplot(aes(x=date,y=n),color="blue")+geom_line()+geom_smooth()+geom_smooth(method = "lm",se=FALSE,color="red")+labs(x="date",y="how many crimes happened this day",title = "crime each day change over time")
+crime_data <- read.csv("Crime_Data_from_2020_to_Present.csv")
+crime_data <- crime_data %>%
+  mutate(
+    date = as.Date(substring(Date.Rptd, 1, 10), format = "%m/%d/%Y"),
+    year  = year(date),
+    month = month(date)
+  ) %>%
+  arrange(date) %>%
+  filter(year < 2024) # drop the year 2024
+
+colnames(crime_data)
 ```
 
-How has crime frequency changed over the years/months?
-Why meaningful
+## 1. Crime Over Time — Has Crime Increased or Decreased?
 
-Time trends are central to crime analysis and allow for a strong thesis.
-Plots
-Time series line plot of number of crimes per month
-Seasonality plot (crimes by month of year)
-Methods
-Compute counts by using group_by() and count(),also use arrange()to make the data into sequence
-Confidence intervals for differences in means between years.
-Potential thesis
-Crime incidents have increased form 2000 tio 2022,however, there is a steadily decrease of crime incidence starting from 2024.and the overall change of crime from 2020 to 2024 is decreasing.
+This plot shows reported crimes per day in LA from 2020 to 2023. The blue curve captures detailed fluctuations, while the red line shows a linear trend across the entire period.
 
-2. Crime by Location (Area) — Which Neighborhoods Are Most Affected?
-Question
-Which areas report the highest crime rates?
+The trend suggests that crime increased from 2020 through 2022, with a noticeable uptick between 2021 and 2022. This could be due to the COVID-19 lockdown in 2020, when many types of crime were suppressed. As the city reopened and activity returned closer to normal in 2021 and 2022, the daily crime counts rose accordingly.
 
-Why meaningful
-The dataset includes counts by LAPD area; these comparisons are statistically rich.
-Plots
-Bar chart: number of incidents by AREA.NAME
+By 2023, the smoothed curve appears to level off, indicating that crime may have stabilized or begun to decrease relative to the peak around 2022.
+
 ```{r}
-crime_data%>%group_by(AREA.NAME)%>%count()%>%arrange(desc(n))%>%ggplot(aes(x=AREA.NAME,y=n))+geom_bar(stat = "identity")
+crime_data %>%
+  group_by(date) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(date, n)) +
+  geom_line(color="steelblue", alpha=0.7) +
+  geom_smooth() +
+  geom_smooth(method="lm", se=FALSE, color="red") +
+  labs(
+    title = "Daily LA Crimes (2020–2023)",
+    x = "Year",
+    y = "Daily Crime Reports"
+  )
+```
+
+Since we see that there is an increase in the number of daily crimes during 2021 sandwiched by two stable periods in 2020 and 2022, a logical comparison would be the mean number of daily crimes in 2020 vs 2022. From what we visually see on the graph, we want to show that $\mu_{2020} < \mu_{2021}$
+
+## 1.5. Inference on mean daily crimes in 2020 vs mean daily crimes in 2022.
+
+- Let $\mu_{2020}$ = the true mean number of crimes per day in 2020
+- Let $\mu_{2022}$ = the true mean number of crimes per day in 2022
+
+- Null: $\mu_{2020} = \mu_{2021}$
+- Alternative: $\mu_{2020} < \mu_{2021}$
+
+```{r}
+# 1. Compute daily crime counts
+daily_counts <- crime_data %>%
+  group_by(date) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  mutate(year = year(date))
+
+# 2. Pull out the two samples
+crime_2020 <- daily_counts %>% filter(year == 2020) %>% pull(n)
+crime_2022 <- daily_counts %>% filter(year == 2022) %>% pull(n)
+
+t.test(
+  crime_2020,
+  crime_2022,
+  alternative = "less",
+  var.equal = FALSE
+)
+```
+
+The Welch's t-test returns a p-value of 2.2e-16, so there's significant evidence to suggest that the daily average crime in 2020 was less than that of 2022.  
+
+## 2. Crime by Location (Area) — Which Neighborhoods Are Most Affected?
+
+To understand how crime is distributed geographically, we first examine the total number of reported crimes across LAPD areas. In general, divisions such as 77th Street, Central, and Pacific consistently report the highest volumes of crime.
+
+However, since our main research question focuses on how crime changes over time, we also break this data down to capture yearly dynamics by the color of the bars (2020–2023).
+
+This allows us to easily compare whether crime in each neighborhood has been increasing, decreasing, or remaining stable across the four-year period. For example, most areas show a steady increase from year to year, matching our previous plot, while others such as Central display dramatic rises in crime from 2021 to 2022.
+
+```{r}
+crime_yearly <- crime_data %>%
+  filter(year %in% c(2020, 2021, 2022, 2023))
+
+crime_yearly %>%
+  group_by(AREA.NAME, year) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  ggplot(aes(x = AREA.NAME, y = n, fill = as.factor(year))) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Set2", name = "Year") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    title = "Crime Counts by Area",
+    x = "Area",
+    y = "Crime Count"
+  )
 ```
 
 Choropleth map if shapefiles are available (optional)
@@ -106,14 +157,77 @@ Plots
 Histogram of victim ages
 
 
+
 Boxplots of victim age by crime type
 
 Bar chart of Vict.Sex × crime type
+
+## 3. Crime by Victim Sex — How Has It Changed Over Time?
+
+To examine gender patterns in crime victims, we look at the number of reported victims by sex (Male vs Female). Again, rather than summarizing all years together, we group incidents by year to see whether the distribution changes over time.
+
+By plotting the yearly counts for male and female victims, we see that the relative proportions remain fairly consistent across the years, with male victims consistently outnumbering female victims. 
+
 ```{r}
-crime_filtered<-crime_data%>%count(Vict.Sex)%>%filter(Vict.Sex=="M"|Vict.Sex=="F")
-crime_filtered
-crime_filtered%>%ggplot(aes(x=Vict.Sex,y=n,fill = Vict.Sex),)+geom_bar(stat = "identity")+labs(x="sex",y="the number of crimes by each gender",title = "number of crimes convicted by male and femals")
+crime_sex_year <- crime_data %>%
+  filter(Vict.Sex %in% c("M", "F")) %>%
+  group_by(year, Vict.Sex) %>%
+  summarise(n = n(), .groups = "drop")
+
+crime_sex_year %>%
+  ggplot(aes(x = year, y = n, fill = Vict.Sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    x = "Year",
+    y = "Reported Victims",
+    fill = "Sex",
+    title = "Crimes by Victim Sex Across Years"
+  )
 ```
+
+# 3.5 Inference on proportion of male victims in 2020 vs 2022.
+
+Even though the plot showed us that there were always more male victims compared to female victims, we can still conduct a two proportion z-test to see whether the proportion of male victims changed significantly between 2020 and 2022. Visually, we can see that 2020 has slightly more male victims than female victims, so we want to find if $p_{2020} > p{2022}$.
+
+- Let $p_{2020}$ = true proportion of victims who were male in 2020
+- Let $p_{2022}$ = true proportion of victims who were male in 2022
+
+- Null: $p_{2020} = p{2022}$
+- Alternative: $p_{2020} > p{2022}$
+
+```{r}
+# Extract year and filter valid sexes
+sex_year <- crime_data %>%
+  filter(Vict.Sex %in% c("M", "F")) %>%
+  mutate(year = year(date)) %>%
+  filter(year %in% c(2020, 2022))
+
+# Count M/F by year
+sex_counts <- sex_year %>%
+  group_by(year, Vict.Sex) %>%
+  summarise(n = n()) %>% ungroup()
+
+# Extract counts
+m2020 <- sex_counts$n[sex_counts$year == 2020 & sex_counts$Vict.Sex == "M"]
+f2020 <- sex_counts$n[sex_counts$year == 2020 & sex_counts$Vict.Sex == "F"]
+
+m2022 <- sex_counts$n[sex_counts$year == 2022 & sex_counts$Vict.Sex == "M"]
+f2022 <- sex_counts$n[sex_counts$year == 2022 & sex_counts$Vict.Sex == "F"]
+
+# Sample proportions
+p2020 <- m2020 / (m2020 + f2020)
+p2022 <- m2022 / (m2022 + f2022)
+
+prop.test(
+  x = c(m2020, m2022),
+  n = c(m2020 + f2020, m2022 + f2022),
+  alternative = "greater",
+  correct = TRUE
+)
+```
+
+
 Methods
 Compare mean victim age across crime categories
 Compare proportions by sex (e.g., “What percent of assault victims are male vs female?”)
