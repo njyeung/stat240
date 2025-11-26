@@ -27,16 +27,63 @@ The knitted document should not include any of the code used for the analysis or
 Your report should include the following sections.
 
 Introduction
-The opening sentence or sentences should draw the reader into your report by providing high-level motivation for the analysis. 
-Describe the question or questions of interest and the motivation for the analysis.
-Conclude the introduction with a thesis statement.
-A thesis statement comprises one or two declarative sentences that summarize the main point of the report and clearly makes an assertion and communicates to the reader the position the authors have taken on the topic.1Links to an external site.
+Understanding crime patterns is essential for developing effective public safety strategies and allocating law enforcement resources efficiently. This analysis investigates crime rates affecting male and female victims in Los Angeles between the years 2020-2024. Some of the questions we were curious to look into are how do crime rates for male and female victims compare throughout the years? Are the trends consistent between genders? Are male victim crime rates consistently higher than female victim rates? We hypothesize that while crime rates for both male and female victims will follow similar patterns throughout the years, the rates for male victims will consistently remain higher.
+
+
+
+
 Background
-Describe the data set, how it was collected, what the variables mean.
-Cite the source of your data.
-Describe any background information needed to better comprehend the question or questions you are posing and how the data relate to the question.
-Describe any unusual factors which may affect interpretation of results.
-Describe what you intend to do in the rest of the report.
+The data for this analysis came from the “Crime Data from 2020 to Present” dataset published by the Los Angeles Police Department (LAPD) on the City of Los Angeles open data portal. The dataset records crime incidents in Los Angeles beginning in 2020 and is publicly downloadable. 
+
+
+
+
+
+Data collection & structure
+The data is structured that each row in the dataset represents a single reported crime incident
+
+The dataset contains 28 variables which are in separate columns including the variables below that are being focused on in our project: 
+DR_NO – a unique record number for each report. 
+Date Rptd – the date the crime was reported to police. 
+DATE OCC – the date the crime occurred. 
+TIME OCC – the time (in 24‑hour format) when the crime occurred. 
+Victim gender (sex) - male or female or nonbinary
+
+
+
+
+
+Background / Context of data
+This dataset allows researchers and analysts to explore patterns in crime in Los Angeles for example by time, location, type of crime, and victim demographics. Because the data span from 2020 onward, they are especially useful for analyzing recent trends, including potential shifts during the COVID‑19 pandemic, changes in neighborhood crime rates, or demographic patterns in victimization which is what we are focusing on. Being able to examine male and female victim crime rates separately within the same time span allows us to compare them side by side.
+Understanding these patterns has practical importance for public safety planning, resource allocation for law enforcement, community interventions, and policy evaluation.
+
+
+
+Limitations & factors affecting interpretation
+Transcription from paper reports: According to the dataset documentation, the data are transcribed from original LAPD crime reports that were typed on paper, which means human error or transcription errors may exist.
+
+
+Missing or ambiguous victim details: There may be entries where victim sex or descent is coded as “X” meaning its anonymous or unknown, or victim age is recorded as 0 which would not be reasonable, which can bias or limit analyses by gender or age. 
+
+
+Reporting vs. occurrence date: The dataset includes both the date of report and the date the crime occurred. Because of potential delays in reporting, analyses based on report date could misrepresent timing. 
+
+
+Data system changes: As noted by LAPD, starting March 2024 they will adopt a new system (NIBRS), this means the format or completeness of future data may change which is also why we are examining the data between 2020 and 2024 and not further on, eliminating this change in data recording which may cause potential bias.
+
+
+
+
+
+For the rest of the report, we will be addressing the following:
+Filtering the dataset to include only crime incidents from the year 2020 (to match the time frame of interest).
+Cleaning and process the data
+Analyze and visualize crime rates over time separately for male and female victims (monthly trends across 2020-2024).
+Compare patterns between genders to examine our thesis that crime rates for male victims are consistently higher than for female victims, even if overall trends are similar.
+
+
+
+
 Analysis
 Include numerical and graphical summaries of the data. Be sure to introduce and describe your numerical and graphical summaries.  Do not display a series of summaries without text explaining them.
 Make sure to include at least one graphical display of the data that best supports your main conclusions for your primary question, and explain how it supports your conclusions.
