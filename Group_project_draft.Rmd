@@ -33,7 +33,7 @@ Understanding crime patterns is essential for developing effective public safety
 
 
 Background
-The data for this analysis came from the “Crime Data from 2020 to Present” dataset published by the Los Angeles Police Department (LAPD) on the City of Los Angeles open data portal. The dataset records crime incidents in Los Angeles beginning in 2020 and is publicly downloadable. 
+The data for this analysis came from the “Crime Data from 2020 to Present” dataset published by the Los Angeles Police Department (LAPD) on the City of Los Angeles open data portal. The dataset records crime incidents in Los Angeles beginning in 2020 and is publicly downloadable. We specifically chose to focus on the comparison between the data from 2020 and 2022 because we made a general graph to see trends of crime rates over the years, and there was an obvious increasing trend from 2020 to 2022 which made us want to focus on an even more specific question of comparing crime rates for different genders within those two years to see if we can find something interesting.
 
 
 
