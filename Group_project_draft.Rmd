@@ -40,7 +40,7 @@ The data for this analysis came from the “Crime Data from 2020 to Present” d
 
 
 Data collection & structure
-The data is structured that each row in the dataset represents a single reported crime incident
+The data is structured that each row in the dataset represents a single reported crime incident. After filtering out partial 2024 data, the dataset contains 870,696 crime records spanning from 2020 to 2023.
 
 The dataset contains 28 variables which are in separate columns including the variables below that are being focused on in our project: 
 DR_NO – a unique record number for each report. 
@@ -49,9 +49,14 @@ DATE OCC – the date the crime occurred.
 TIME OCC – the time (in 24‑hour format) when the crime occurred. 
 Victim gender (sex) - male or female or nonbinary
 
+We later compare crime levels between years by aggregating the data into daily crime counts. Each day becomes one observation, representing the total number of crimes that occurred on that date. 2020 contributes approximately 366 observations (one per day, leap year), and 2022 contributes approximately 365 observations. Even after compression, the sample contains more than enough observations to assume a normal distribution.
 
+We also examine changes in victim gender proportions between 2020 and 2022. The sample sizes for this analysis (given below) are extremely large, therefore we can assume a normal distribution for the z-test.
 
-
+- 2020 Males: 82157
+- 2020 Females: 69333 
+- 2022 Males: 95743 
+- 2022 Females: 89701
 
 Background / Context of data
 This dataset allows researchers and analysts to explore patterns in crime in Los Angeles for example by time, location, type of crime, and victim demographics. Because the data span from 2020 onward, they are especially useful for analyzing recent trends, including potential shifts during the COVID‑19 pandemic, changes in neighborhood crime rates, or demographic patterns in victimization which is what we are focusing on. Being able to examine male and female victim crime rates separately within the same time span allows us to compare them side by side.
@@ -190,25 +195,6 @@ crime_yearly %>%
   )
 ```
 
-Choropleth map if shapefiles are available (optional)
-Boxplot of crime counts per district over months
-Methods
-Compare top 5 vs bottom 5 areas
-Use proportions + confidence intervals
-Potential thesis
-Crime in Los Angeles is unevenly distributed across police districts, with a small number of areas accounting for the majority of reported incidents.
-5. Victim Demographics — Does Age or Sex Correlate With Crime Type?
-Question
-Do certain crimes disproportionately affect particular demographic groups?
-Plots
-Histogram of victim ages
-
-
-
-Boxplots of victim age by crime type
-
-Bar chart of Vict.Sex × crime type
-
 ## 3. Crime by Victim Sex — How Has It Changed Over Time?
 
 To examine gender patterns in crime victims, we look at the number of reported victims by sex (Male vs Female). Again, rather than summarizing all years together, we group incidents by year to see whether the distribution changes over time.
@@ -272,63 +258,6 @@ prop.test(
   alternative = "greater",
   correct = TRUE
 )
+
+c(m2020, f2020, m2022, f2022)
 ```
-
-
-Methods
-Compare mean victim age across crime categories
-Compare proportions by sex (e.g., “What percent of assault victims are male vs female?”)
-Potential thesis
-Violent crimes disproportionately affect younger victims, while identity theft affects older demographics.
-
-
-
-
-Option 1 — Compare Two Population Proportions (Very Strong & Easy)
-Inference Question
-Is the proportion of identity theft incidents higher in 2021 compared to 2020?
-Why this is great
-Crime dataset includes Date.OCC → you can segment by year
-Crime type “THEFT OF IDENTITY” is frequent
-You can make a clear two-proportion z-test
-Easy plots: time series + proportion bar chart
-Hypotheses
-H₀: p₍2021₎ = p₍2020₎
-H₁: p₍2021₎ ≠ p₍2020₎
-Thesis (example)
-The proportion of identity theft incidents significantly changed between 2020 and 2021, suggesting a meaningful shift in crime patterns during this period.
-
-BRAINSTORM
-
-PLOTS
-Crimes over time plot
-bin by month, count rows per month. Plot
-
-INFERENCE
-single population proportion: M/F
-Is the crimes against male and female equal?
-p = 0.5, number of crimes against males = number of crimes against females
-There is probably more crimes against females. Do a two sided test anyways.
-
-
-two proportion test: (M/F) in 2021 vs (M/F) in 2022
-compare the crimes against male and female in 2021 and 2022 
-
-Comparing two means 
-Comparing mean victim age over two years
-
-
-
-
-
-Discussion
-Provide broader interpretations of your analysis and describe how to interpret your results with respect to your question of interest.
-Discuss any potential short-comings of the analysis.
-Discuss potential future directions for additional work
-New questions
-Different methods to address the same questions
-New data you might collect to refine your understanding
-Summarize your primary conclusions and the primary evidence that supports these conclusions.
-References
-In the R Markdown file, you may automatically cite other resources by using a caret followed by the reference between square brackets: ^[your reference text] which will place a marker at this location and a footnote at the end of the document.
-
