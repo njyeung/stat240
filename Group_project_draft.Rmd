@@ -58,6 +58,8 @@ We also examine changes in victim gender proportions between 2020 and 2022. The 
 - 2022 Males: 95743 
 - 2022 Females: 89701
 
+the reason that the dataset is suitable for making a t-test is because there are 366 observations in 2020 which we assign this to n1. And 365 in 2022 which we assign this to n2. n1=>30; n2=>30. so the sample distribution is approximately normal and has high statistical power.so it is large enough to assume a normal approximation so that we can use t-test.
+
 Background / Context of data
 This dataset allows researchers and analysts to explore patterns in crime in Los Angeles for example by time, location, type of crime, and victim demographics. Because the data span from 2020 onward, they are especially useful for analyzing recent trends, including potential shifts during the COVID‑19 pandemic, changes in neighborhood crime rates, or demographic patterns in victimization which is what we are focusing on. Being able to examine male and female victim crime rates separately within the same time span allows us to compare them side by side.
 Understanding these patterns has practical importance for public safety planning, resource allocation for law enforcement, community interventions, and policy evaluation.
