@@ -1,0 +1,230 @@
+---
+title: "Crime Rates in LA Over The Years"
+author: "Cody Ke, Nicholas Yeung, Anna Wu, Aadarsh Sankar"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Introduction
+Understanding crime patterns is essential for developing effective public safety strategies and allocating law enforcement resources efficiently. This analysis investigates crime rates affecting male and female victims in Los Angeles between the years 2020-2024. Some of the questions we were curious to look into are how do crime rates for male and female victims compare throughout the years? Are the trends consistent between genders? Are male victim crime rates consistently higher than female victim rates? We hypothesize that while crime rates for both male and female victims will follow similar patterns throughout the years, the rates for male victims will consistently remain higher.
+
+# Background
+The data used in this analysis come from the “Crime Data from 2020 to Present” dataset published by the Los Angeles Police Department (LAPD) through the City of Los Angeles open data portal. This publicly accessible dataset records detailed crime incidents beginning in 2020 and includes information such as time, location, offense type, and victim demographics. Because it spans the years immediately before, during, and after the height of the COVID-19 pandemic, it provides a valuable opportunity to examine recent crime patterns and shifts in Los Angeles.
+
+In our project, we chose to focus specifically on comparing crime data from 2020 and 2022. When we first visualized the overall annual crime trends (1), we observed that these two years showed relatively stable patterns, in contrast to 2021, when crime rates fluctuated as communities were still adjusting to the impacts of COVID-19. This made 2020 and 2022 particularly suitable for closer comparison. In addition, the dataset’s inclusion of victim demographic information allows us to directly compare male and female victimization rates across the same time span. Understanding these patterns has practical implications for public safety planning, resource distribution, and evaluating potential disparities in how different demographic groups experience crime in Los Angeles.
+
+# Data collection & structure
+The data is structured that each row in the dataset represents a single reported crime incident. After filtering out partial 2024 data, the dataset contains 870,696 crime records spanning from 2020 to 2023.
+
+The dataset contains 28 variables which are in separate columns including the variables below that are being focused on in our project: 
+
+- DR_NO – a unique record number for each report. 
+- Date Rptd – the date the crime was reported to police. 
+- DATE OCC – the date the crime occurred. 
+- TIME OCC – the time (in 24‑hour format) when the crime occurred. 
+- Victim gender (sex) - male or female or nonbinary
+
+We later compare crime levels between years by aggregating the data into daily crime counts. Each day becomes one observation, representing the total number of crimes that occurred on that date. Even after compression, the sample contains more than enough observations to assume a normal distribution.
+
+- 2020 contributes 366 observations (one per day, leap year)
+- 2022 contributes 365 observations. 
+
+We also examine changes in victim gender proportions between 2020 and 2022. The sample sizes for this analysis (given below) are extremely large, therefore we can assume a normal distribution for the z-test.
+
+- 2020 Males: 82157
+- 2020 Females: 69333 
+- 2022 Males: 95743
+- 2022 Females: 89701
+
+# Limitations & factors affecting interpretation
+- Transcription from paper reports: According to the dataset documentation, the data are transcribed from original LAPD crime reports that were typed on paper, which means human error or transcription errors may exist.
+
+- Missing or ambiguous victim details: There may be entries where victim sex or descent is coded as “X” meaning its anonymous or unknown, or victim age is recorded as 0 which would not be reasonable, which can bias or limit analyses by gender or age. 
+
+- Reporting vs. occurrence date: The dataset includes both the date of report and the date the crime occurred. Because of potential delays in reporting, analyses based on report date could misrepresent timing. 
+
+- Data system changes: Finally, the LAPD began transitioning to a new records management system in March 2024, so we omit 2024 to maintain a consistent reporting process.
+
+# Analysis
+
+## 0. Data Preprocessing Step
+LAPD switched to a new records management system in March 7th 2024 (the number of crimes in this dataset drops significantly after that), so we're going to ignore 2024 in total.
+
+```{r}
+crime_data <- read.csv("Crime_Data_from_2020_to_Present.csv")
+crime_data <- crime_data %>%
+  mutate(
+    date = as.Date(substring(Date.Rptd, 1, 10), format = "%m/%d/%Y"),
+    year  = year(date),
+    month = month(date)
+  ) %>%
+  arrange(date) %>%
+  filter(year < 2024) # drop the year 2024
+
+colnames(crime_data)
+```
+
+## 1. Crime Over Time — Has Crime Increased or Decreased?
+
+This plot shows reported crimes per day in LA from 2020 to 2023. The blue curve captures detailed fluctuations, while the red line shows a linear trend across the entire period.
+
+The trend suggests that crime increased from 2020 through 2022, with a noticeable uptick between 2021 and 2022. This could be due to the COVID-19 lockdown in 2020, when many types of crime were suppressed. As the city reopened and activity returned closer to normal in 2021 and 2022, the daily crime counts rose accordingly.
+
+By 2023, the smoothed curve appears to level off, indicating that crime may have stabilized or begun to decrease relative to the peak around 2022.
+
+```{r}
+crime_data %>%
+  group_by(date) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(date, n)) +
+  geom_line(color="steelblue", alpha=0.7) +
+  geom_smooth() +
+  geom_smooth(method="lm", se=FALSE, color="red") +
+  labs(
+    title = "Daily LA Crimes (2020–2023)",
+    x = "Year",
+    y = "Daily Crime Reports"
+  )
+```
+
+Since we see that there is an increase in the number of daily crimes during 2021 sandwiched by two stable periods in 2020 and 2022, a logical comparison would be the mean number of daily crimes in 2020 vs 2022. From what we visually see on the graph, we want to show that $\mu_{2020} < \mu_{2021}$
+
+## 1.5. Inference on mean daily crimes in 2020 vs mean daily crimes in 2022.
+
+- Let $\mu_{2020}$ = the true mean number of crimes per day in 2020
+- Let $\mu_{2022}$ = the true mean number of crimes per day in 2022
+
+- Null: $\mu_{2020} = \mu_{2021}$
+- Alternative: $\mu_{2020} < \mu_{2021}$
+
+```{r}
+# 1. Compute daily crime counts
+daily_counts <- crime_data %>%
+  group_by(date) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  mutate(year = year(date))
+
+# 2. Pull out the two samples
+crime_2020 <- daily_counts %>% filter(year == 2020) %>% pull(n)
+crime_2022 <- daily_counts %>% filter(year == 2022) %>% pull(n)
+
+t.test(
+  crime_2020,
+  crime_2022,
+  alternative = "less",
+  var.equal = FALSE
+)
+```
+
+The Welch's t-test returns a p-value of $2.2e^{-16}$, so there's significant evidence to suggest that the daily average crime in 2020 was less than that of 2022.  
+
+## 2. Crime by Location (Area) — Which Neighborhoods Are Most Affected?
+
+To understand how crime is distributed geographically, we first examine the total number of reported crimes across LAPD areas. In general, divisions such as 77th Street, Central, and Pacific consistently report the highest volumes of crime.
+
+However, since our main research question focuses on how crime changes over time, we also break this data down to capture yearly dynamics by the color of the bars (2020–2023).
+
+This allows us to easily compare whether crime in each neighborhood has been increasing, decreasing, or remaining stable across the four-year period. For example, most areas show a steady increase from year to year, matching our previous plot, while others such as Central display dramatic rises in crime from 2021 to 2022.
+
+```{r}
+crime_yearly <- crime_data %>%
+  filter(year %in% c(2020, 2021, 2022, 2023))
+
+crime_yearly %>%
+  group_by(AREA.NAME, year) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  ggplot(aes(x = AREA.NAME, y = n, fill = as.factor(year))) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_brewer(palette = "Set2", name = "Year") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    title = "Crime Counts by Area",
+    x = "Area",
+    y = "Crime Count"
+  )
+```
+
+## 3. Crime by Victim Sex — How Has It Changed Over Time?
+
+To examine gender patterns in crime victims, we look at the number of reported victims by sex (Male vs Female). Again, rather than summarizing all years together, we group incidents by year to see whether the distribution changes over time.
+
+By plotting the yearly counts for male and female victims, we see that the relative proportions remain fairly consistent across the years, with male victims consistently outnumbering female victims. 
+
+```{r}
+crime_sex_year <- crime_data %>%
+  filter(Vict.Sex %in% c("M", "F")) %>%
+  group_by(year, Vict.Sex) %>%
+  summarise(n = n(), .groups = "drop")
+
+crime_sex_year %>%
+  ggplot(aes(x = year, y = n, fill = Vict.Sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    x = "Year",
+    y = "Reported Victims",
+    fill = "Sex",
+    title = "Crimes by Victim Sex Across Years"
+  )
+```
+
+# 3.5 Inference on proportion of male victims in 2020 vs 2022.
+
+Even though the plot showed us that there were always more male victims compared to female victims, we can still conduct a two proportion z-test to see whether the proportion of male victims changed significantly between 2020 and 2022. Visually, we can see that 2020 has slightly more male victims than female victims, so we want to find if $p_{2020} > p_{2022}$.
+
+- Let $p_{2020}$ = true proportion of victims who were male in 2020
+- Let $p_{2022}$ = true proportion of victims who were male in 2022
+
+- Null: $p_{2020} = p_{2022}$
+- Alternative: $p_{2020} > p_{2022}$
+
+```{r}
+# Extract year and filter valid sexes
+sex_year <- crime_data %>%
+  filter(Vict.Sex %in% c("M", "F")) %>%
+  mutate(year = year(date)) %>%
+  filter(year %in% c(2020, 2022))
+
+# Count M/F by year
+sex_counts <- sex_year %>%
+  group_by(year, Vict.Sex) %>%
+  summarise(n = n()) %>% ungroup()
+
+# Extract counts
+m2020 <- sex_counts$n[sex_counts$year == 2020 & sex_counts$Vict.Sex == "M"]
+f2020 <- sex_counts$n[sex_counts$year == 2020 & sex_counts$Vict.Sex == "F"]
+
+m2022 <- sex_counts$n[sex_counts$year == 2022 & sex_counts$Vict.Sex == "M"]
+f2022 <- sex_counts$n[sex_counts$year == 2022 & sex_counts$Vict.Sex == "F"]
+
+# Sample proportions
+p2020 <- m2020 / (m2020 + f2020)
+p2022 <- m2022 / (m2022 + f2022)
+
+prop.test(
+  x = c(m2020, m2022),
+  n = c(m2020 + f2020, m2022 + f2022),
+  alternative = "greater",
+  correct = TRUE
+)
+```
+
+We observe a small p-value of $2.2e^{-16}$, so there is significant evidence to suggest that the proportion of male victims in crimes has increased from 2020 to 2022.
+
+# Discussion
+Overall, findings suggest that crime in Los Angeles increased from 2020–2022 and plateaued in 2023, supporting the hypothesis that the increase adjusted back to pre-pandemic norms. The Welch two-sample t-test indicates that the mean daily count for 2020 is significantly lower than that of 2022, while the area comparison suggests that 77th Street and Central are the burdened divisions most consistently, which indicates where preventative resources should be directed. The two-proportion test shows that male victims exceed female victims each year; thus, our finding supports this quantitative result, even if the general trend is similar enough for us to reach the same conclusions.
+
+However, findings should be taken with a grain of salt, as numbers could have been underreported, demographics were masked (for example, `Vict.Sex = "X"`), and report dates instead of incidents were used, which could skew trending or demographic splits at certain times. Such limitations raise an obvious question beyond this paper: for example, do certain crimes or areas create a constant gender divide, and do certain months or seasons create the upsurge in 2022? Further tests would help determine that question—spatial econometric models, time series decomposition, or victim-level logistic regression. Similarly, collecting new data or merging new data (for example, neighborhood SES data, calls-for-service data, crime-type severity designations) would help separate exposure considerations from reporting considerations. Thus, future work would involve longitudinal collection, methods, and merging to see if policy change is warranted for certain crimes, areas, or populations.
+
+# References
+Los Angeles Police Department. Crime Data from 2020 to Present. City of Los Angeles Open Data Portal.1
+
+---
+
+1. https://data.lacity.org/Public-Safety/Crime-Data-from-2020-to-Present/2nrs-mtv8↩︎
